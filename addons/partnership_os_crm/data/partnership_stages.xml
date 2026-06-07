@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Update the four default CRM stages to the first four partnership stages.
+        noupdate="0" ensures these are applied even if the records already exist.
+    -->
+    <data noupdate="0">
+        <record id="crm.stage_lead1" model="crm.stage">
+            <field name="name">Identified</field>
+            <field name="sequence">1</field>
+            <field name="is_won" eval="False"/>
+        </record>
+        <record id="crm.stage_lead2" model="crm.stage">
+            <field name="name">Outreach Initiated</field>
+            <field name="sequence">2</field>
+            <field name="is_won" eval="False"/>
+        </record>
+        <record id="crm.stage_lead3" model="crm.stage">
+            <field name="name">Introductory Meeting</field>
+            <field name="sequence">3</field>
+            <field name="is_won" eval="False"/>
+        </record>
+        <!-- stage_lead4 was "Won" — repurpose as Opportunity Assessment -->
+        <record id="crm.stage_lead4" model="crm.stage">
+            <field name="name">Opportunity Assessment</field>
+            <field name="sequence">4</field>
+            <field name="is_won" eval="False"/>
+            <field name="fold" eval="False"/>
+        </record>
+    </data>
+
+    <!-- New stages — only create once -->
+    <data noupdate="1">
+        <record id="stage_partnership_5" model="crm.stage">
+            <field name="name">Proposal Development</field>
+            <field name="sequence">5</field>
+            <field name="is_won" eval="False"/>
+        </record>
+        <record id="stage_partnership_6" model="crm.stage">
+            <field name="name">Negotiation</field>
+            <field name="sequence">6</field>
+            <field name="is_won" eval="False"/>
+        </record>
+        <record id="stage_partnership_7" model="crm.stage">
+            <field name="name">Agreement Executed</field>
+            <field name="sequence">7</field>
+            <field name="is_won" eval="True"/>
+        </record>
+        <record id="stage_partnership_8" model="crm.stage">
+            <field name="name">Active Project</field>
+            <field name="sequence">8</field>
+            <field name="is_won" eval="False"/>
+        </record>
+        <record id="stage_partnership_9" model="crm.stage">
+            <field name="name">Completed</field>
+            <field name="sequence">9</field>
+            <field name="is_won" eval="False"/>
+            <field name="fold" eval="True"/>
+        </record>
+    </data>
+</odoo>

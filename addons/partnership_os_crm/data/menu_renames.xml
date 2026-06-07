@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Top-level app: CRM → Partnerships -->
+        <record id="crm.crm_menu_root" model="ir.ui.menu">
+            <field name="name">Partnerships</field>
+        </record>
+
+        <!-- Sub-menu "Sales" → "Partnerships" -->
+        <record id="crm.crm_menu_sales" model="ir.ui.menu">
+            <field name="name">Partnerships</field>
+        </record>
+
+        <!-- My Pipeline → My Partnerships -->
+        <record id="crm.menu_crm_opportunities" model="ir.ui.menu">
+            <field name="name">My Partnerships</field>
+        </record>
+
+        <!-- Customers → Partner Organizations -->
+        <record id="crm.res_partner_menu_customer" model="ir.ui.menu">
+            <field name="name">Partner Organizations</field>
+        </record>
+
+        <!-- Teams → BD Teams -->
+        <record id="crm.sales_team_menu_team_pipeline" model="ir.ui.menu">
+            <field name="name">BD Teams</field>
+        </record>
+
+        <!-- Hide the Leads menu — we work with Opportunities only -->
+        <record id="crm.crm_menu_leads" model="ir.ui.menu">
+            <field name="active" eval="False"/>
+        </record>
+
+        <!-- Reporting > Pipeline → Partnership Pipeline -->
+        <record id="crm.crm_opportunity_report_menu" model="ir.ui.menu">
+            <field name="name">Partnership Pipeline</field>
+        </record>
+
+        <!-- Configuration > Sales Teams → BD Teams -->
+        <record id="crm.crm_team_config" model="ir.ui.menu">
+            <field name="name">BD Teams</field>
+        </record>
+
+        <!-- Configuration > Pipeline sub-section → Partnership Pipeline -->
+        <record id="crm.menu_crm_config_lead" model="ir.ui.menu">
+            <field name="name">Partnership Pipeline</field>
+        </record>
+    </data>
+</odoo>

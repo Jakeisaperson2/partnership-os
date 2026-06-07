@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Rename "Sales Team" label on the CRM team form -->
+    <record id="crm_team_view_form_partnership" model="ir.ui.view">
+        <field name="name">crm.team.view.form.partnership</field>
+        <field name="model">crm.team</field>
+        <field name="inherit_id" ref="sales_team.crm_team_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="attributes">
+                <attribute name="string">Business Development Team</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Rename "Sales Team" label on the kanban card -->
+    <record id="crm_team_view_kanban_partnership" model="ir.ui.view">
+        <field name="name">crm.team.view.kanban.partnership</field>
+        <field name="model">crm.team</field>
+        <field name="inherit_id" ref="sales_team.crm_team_view_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban" position="attributes">
+                <attribute name="string">BD Teams</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

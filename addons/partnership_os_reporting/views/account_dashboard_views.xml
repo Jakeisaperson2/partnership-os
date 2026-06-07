@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Phase 5 — BD Reporting dashboards.
+        These pivot/graph views surface partnership-relevant financial data.
+        Full spreadsheet dashboard definitions are a follow-on deliverable.
+    -->
+
+    <!-- Revenue by Partner Organization: pivot view on account.move.line -->
+    <record id="action_bd_revenue_by_partner" model="ir.actions.act_window">
+        <field name="name">Revenue by Partner Organization</field>
+        <field name="res_model">account.move.line</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="domain">[('move_id.move_type', 'in', ['out_invoice', 'out_refund']),
+                              ('move_id.state', '=', 'posted')]</field>
+        <field name="context">{
+            'pivot_row_groupby': ['partner_id'],
+            'pivot_col_groupby': ['date:quarter'],
+            'pivot_measures': ['credit'],
+            'graph_groupbys': ['partner_id'],
+        }</field>
+    </record>
+
+    <!-- Forecasted Opportunity Value: pivot on crm.lead -->
+    <record id="action_bd_pipeline_forecast" model="ir.actions.act_window">
+        <field name="name">Partnership Pipeline Forecast</field>
+        <field name="res_model">crm.lead</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="domain">[('type', '=', 'opportunity'), ('active', '=', True),
+                              ('probability', '&lt;', 100)]</field>
+        <field name="context">{
+            'pivot_row_groupby': ['stage_id'],
+            'pivot_col_groupby': ['service_category'],
+            'pivot_measures': ['expected_revenue'],
+        }</field>
+    </record>
+
+    <!-- Closed Partnership Value: won opportunities -->
+    <record id="action_bd_closed_partnerships" model="ir.actions.act_window">
+        <field name="name">Closed Partnership Value</field>
+        <field name="res_model">crm.lead</field>
+        <field name="view_mode">pivot,graph,list</field>
+        <field name="domain">[('type', '=', 'opportunity'), ('probability', '=', 100)]</field>
+        <field name="context">{
+            'pivot_row_groupby': ['partner_id'],
+            'pivot_col_groupby': ['date_closed:quarter'],
+            'pivot_measures': ['expected_revenue'],
+        }</field>
+    </record>
+
+    <!-- BD Reporting menu under Partnerships > Reporting -->
+    <menuitem id="menu_bd_reporting_root"
+              name="BD Analytics"
+              parent="crm.crm_menu_report"
+              sequence="10"/>
+
+    <menuitem id="menu_bd_revenue_by_partner"
+              name="Revenue by Partner"
+              parent="menu_bd_reporting_root"
+              action="action_bd_revenue_by_partner"
+              sequence="1"/>
+
+    <menuitem id="menu_bd_pipeline_forecast"
+              name="Pipeline Forecast"
+              parent="menu_bd_reporting_root"
+              action="action_bd_pipeline_forecast"
+              sequence="2"/>
+
+    <menuitem id="menu_bd_closed_partnerships"
+              name="Closed Partnerships"
+              parent="menu_bd_reporting_root"
+              action="action_bd_closed_partnerships"
+              sequence="3"/>
+
+</odoo>

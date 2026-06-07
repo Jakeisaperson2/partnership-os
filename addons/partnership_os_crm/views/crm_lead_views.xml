@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ── Form view overrides ────────────────────────────────────────────── -->
+    <record id="crm_lead_view_form_partnership" model="ir.ui.view">
+        <field name="name">crm.lead.view.form.partnership</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+        <field name="arch" type="xml">
+
+            <!-- Rename "Customer" label on the opportunity partner field -->
+            <xpath expr="//group[@name='opportunity_partner']//field[@name='partner_id']"
+                   position="attributes">
+                <attribute name="string">Partner Organization</attribute>
+            </xpath>
+
+            <!-- Add AMC fields after the partner group, inside the opportunity section -->
+            <xpath expr="//group[@name='opportunity_partner']" position="after">
+                <group name="amc_details" string="Partnership Details"
+                       invisible="type == 'lead'">
+                    <field name="amc_partner_type" string="Partner Type"/>
+                    <field name="therapeutic_area"/>
+                    <field name="research_area"/>
+                    <field name="service_category"/>
+                </group>
+            </xpath>
+
+            <!-- Rename the Internal Notes tab -->
+            <page name="internal_notes" position="attributes">
+                <attribute name="string">Notes &amp; Context</attribute>
+            </page>
+
+            <!-- Rename the Extra Information tab (opportunity side) -->
+            <page name="lead" position="attributes">
+                <attribute name="string">Additional Details</attribute>
+            </page>
+
+        </field>
+    </record>
+
+    <!-- ── Kanban view: show partner organization on card ─────────────────── -->
+    <record id="view_crm_lead_kanban_partnership" model="ir.ui.view">
+        <field name="name">crm.lead.kanban.partnership</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.view_crm_lead_kanban"/>
+        <field name="arch" type="xml">
+            <!-- Swap contact_name subtitle for partner organization name -->
+            <xpath expr="//span[hasclass('o_kanban_record_subtitle')]" position="replace">
+                <span class="o_kanban_record_subtitle">
+                    <field name="partner_id"/>
+                </span>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ── Search view: relabel pipeline filters ────────────────────────── -->
+    <record id="view_crm_case_opportunities_filter_partnership" model="ir.ui.view">
+        <field name="name">crm.lead.search.partnership</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.view_crm_case_opportunities_filter"/>
+        <field name="arch" type="xml">
+            <!-- "My Pipeline" → "My Partnerships" -->
+            <filter name="assigned_to_me" position="attributes">
+                <attribute name="string">My Partnerships</attribute>
+            </filter>
+            <!-- Group By "Salesperson" → "Partnership Manager" -->
+            <filter name="salesperson" position="attributes">
+                <attribute name="string">Partnership Manager</attribute>
+            </filter>
+            <!-- Group By "Sales Team" → "BD Team" -->
+            <filter name="saleschannel" position="attributes">
+                <attribute name="string">BD Team</attribute>
+            </filter>
+        </field>
+    </record>
+
+</odoo>
