@@ -1,258 +1,93 @@
-# MM ERP — Odoo 17.0 Community (Local)
+# PartnershipOS
 
-A Docker-based local instance of [Odoo 17.0 Community Edition](https://github.com/odoo/odoo)
-for evaluation and development.
+**A partnership and business-development platform for academic medical centers, built as custom modules on Odoo 17 Community.** It turns Odoo's general-purpose CRM into a tool for managing industry partnerships, sponsored research, licensing deals, and the projects that follow them.
 
----
-
-## Prerequisites
-
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
-- Ports **8069** free on your machine
+![Odoo](https://img.shields.io/badge/Odoo-17.0_Community-714B67?logo=odoo&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-4169E1?logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker_Compose-2496ED?logo=docker&logoColor=white)
+![License: LGPL-3](https://img.shields.io/badge/License-LGPL--3-blue.svg)
 
 ---
 
-## Installation
+## Why
 
-```powershell
-# Clone or download this project, then open a terminal in the project folder.
-# No additional installation steps — Docker handles everything.
+Off-the-shelf CRMs are built for sales teams selling products. Academic medical center BD teams work differently: long partnership cycles, research agreements, licensing, and hand-offs into funded projects. PartnershipOS reshapes Odoo around that workflow instead of making the team fit a sales tool.
+
+## Features
+
+- **9-stage partnership pipeline**: Identified → Outreach → Intro Meeting → Assessment → Proposal → Negotiation → Agreement Executed → Active Project → Completed
+- **Domain-specific fields**: therapeutic area, research area, service category (sponsored research, licensing, clinical trial…), and partner type (pharma, biotech, MedTech, CRO, foundation…)
+- **Partnership terminology throughout**: "CRM" becomes *Partnerships*, "Customers" become *Partner Organizations*, "Salesperson" becomes *Partnership Manager*
+- **Automatic project creation**: moving a deal to *Agreement Executed* creates a linked project (idempotent), and opportunities show a smart button to their projects
+- **BD analytics**: revenue by partner, pipeline forecast, and closed partnerships by quarter
+- **Streamlined UI**: hides unused ERP apps (inventory, manufacturing, POS…) and applies custom branding
+
+## Modules
+
+All customization lives in `addons/` as installable Odoo modules, layered in a dependency chain:
+
+| Module | Purpose |
+|---|---|
+| [`partnership_os_base`](addons/partnership_os_base) | Navigation cleanup and brand styling |
+| [`partnership_os_crm`](addons/partnership_os_crm) | Pipeline stages, AMC fields, terminology, view overrides |
+| [`partnership_os_project`](addons/partnership_os_project) | Opportunity ↔ project link and auto-creation rule |
+| [`partnership_os_reporting`](addons/partnership_os_reporting) | BD dashboards (pivot and graph views) |
+
+```
+partnership_os_base → partnership_os_crm → partnership_os_project → partnership_os_reporting
 ```
 
----
+## Quick Start
 
-## Startup
+**Requires:** [Docker Desktop](https://www.docker.com/products/docker-desktop/), with port 8069 free.
 
-```powershell
+```bash
+git clone https://github.com/Jakeisaperson2/partnership-os.git
+cd partnership-os
+cp .env.example .env          # then set your own Postgres password
 docker compose up -d
 ```
 
-The first run downloads the `odoo:17.0` and `postgres:15` images (~1–2 GB total).
-Wait about 30–60 seconds, then open:
+Open **http://localhost:8069** and create a database (for example `odoo_dev`). Then install the modules:
 
-**http://localhost:8069**
-
----
-
-## First-Time Database Setup
-
-Odoo opens a **Create Database** form on first visit.
-
-| Field | Recommended value |
-|-------|------------------|
-| Master Password | (leave blank for local dev, or set in `config/odoo.conf`) |
-| Database Name | `odoo_dev` (any name you like) |
-| Email | Your login email |
-| Password | Your login password |
-| Language | English (or your preferred language) |
-| Country | Your country |
-| Demo data | Check this box to load sample records for evaluation |
-
-Click **Create Database**. Odoo installs its base module (~1–2 min) and then
-redirects you to the login screen.
-
----
-
-## Installing Modules
-
-### Via the web interface (recommended for evaluation)
-
-1. Log in as the administrator.
-2. Go to **Settings → General Settings** → scroll to bottom → **Activate Developer Mode**.
-3. Open the **Apps** menu from the top bar.
-4. Click **Update Apps List** (first time only).
-5. Search for the module (e.g., "CRM") and click **Install**.
-
-### Via the command line
-
-```powershell
-docker compose run --rm web odoo `
-    --db_host db --db_user odoo --db_password odoo `
-    -d odoo_dev -i crm,sale_management,project,contacts,discuss `
-    --stop-after-init
+```bash
+docker compose run --rm web odoo --db_host db --db_user odoo --db_password <your-password> \
+  -d odoo_dev -i partnership_os_base,partnership_os_crm,partnership_os_project --stop-after-init
+docker compose restart web
 ```
 
-Replace `odoo_dev` with your database name and the `-i` list with the module
-technical names you want.
-
----
-
-## Upgrading Modules
-
-After updating a module's source code, upgrade it so Odoo re-applies changes:
-
-```powershell
-docker compose run --rm web odoo `
-    --db_host db --db_user odoo --db_password odoo `
-    -d odoo_dev -u <module_name> `
-    --stop-after-init
-```
-
----
-
-## Shutdown
-
-```powershell
-# Stop containers, keep all data intact
-docker compose down
-```
-
-```powershell
-# Stop AND delete all data (full reset — irreversible)
-docker compose down -v
-```
-
----
-
-## Backup and Restore
-
-### Backup via the Odoo web UI (easiest)
-
-1. Go to **http://localhost:8069/web/database/manager**
-2. Click **Backup** next to your database.
-3. Choose **ZIP** format (includes filestore attachments).
-4. Save the downloaded file.
-
-### Backup via command line
-
-```powershell
-# Dump the database to a file in the backups/ folder
-docker compose exec db pg_dump -U odoo odoo_dev > backups\odoo_dev.dump
-```
-
-### Restore via the Odoo web UI
-
-1. Go to **http://localhost:8069/web/database/manager**
-2. Click **Restore Database**.
-3. Upload the ZIP file and give the restored database a name.
-
-### Restore via command line
-
-```powershell
-# Create the database first, then restore
-docker compose exec db createdb -U odoo odoo_dev_restored
-Get-Content backups\odoo_dev.dump | docker compose exec -T db psql -U odoo odoo_dev_restored
-```
-
----
-
-## Viewing Logs
-
-```powershell
-# Follow live logs from Odoo
-docker compose logs -f web
-
-# Follow live logs from PostgreSQL
-docker compose logs -f db
-```
-
----
-
-## Troubleshooting
-
-### The browser shows "Bad Gateway" or nothing loads
-
-The Odoo container is still starting. Wait 30 seconds and refresh. Check logs:
-
-```powershell
-docker compose logs web
-```
-
-### Port 8069 is already in use
-
-Stop whatever is using it, or change the port mapping in `docker-compose.yml`:
-
-```yaml
-ports:
-  - "8070:8069"   # maps host port 8070 → container port 8069
-```
-
-Then access Odoo at **http://localhost:8070**.
-
-### "Connection refused" to the database
-
-The `db` container may not be healthy yet. The `healthcheck` in `docker-compose.yml`
-makes the web container wait, but you can check manually:
-
-```powershell
-docker compose ps
-```
-
-Both `db` and `web` should show `Up` or `healthy`.
-
-### Forgot admin password
-
-Reset it from the database manager page:
-1. Go to **http://localhost:8069/web/database/manager**
-2. Click **Set Master Password** if prompted.
-3. Then use **http://localhost:8069/odoo/action-base_setup.setup_config_wizard_act**
-   → or via the Settings → Users menu to change the admin user's password.
-
-Alternatively, reset via shell:
-
-```powershell
-docker compose exec web odoo shell -d odoo_dev --db_host db --db_user odoo --db_password odoo
-```
-
-Then inside the Odoo shell:
-
-```python
-env['res.users'].browse(2).write({'password': 'newpassword'})
-env.cr.commit()
-exit()
-```
-
-### Complete reset (start fresh)
-
-```powershell
-docker compose down -v
-docker compose up -d
-```
-
-This deletes all data and volumes. The next browser visit shows the database
-creation form again.
-
----
+After editing a module, upgrade it with `-u <module_name>` in place of `-i`.
 
 ## Project Structure
 
 ```
-MM ERP/
-├── docker-compose.yml     # Service definitions
-├── .env                   # Credentials (never commit to git)
-├── config/
-│   └── odoo.conf          # Odoo server options
-├── addons/                # Place custom modules here later
-├── backups/               # Database dumps (gitignored)
-├── README.md              # This file
-└── CLAUDE.md              # Developer reference
+partnership-os/
+├── docker-compose.yml     # Postgres 15 + Odoo 17 services
+├── .env.example           # Database credential template
+├── config/odoo.conf       # Odoo server configuration
+├── addons/                # PartnershipOS custom modules
+│   └── partnership_os_*/  # models/, views/, data/, __manifest__.py
+└── backups/               # Local database dumps (gitignored)
 ```
 
----
+## Common Commands
 
-## Community vs Enterprise Modules
+| Task | Command |
+|---|---|
+| Start | `docker compose up -d` |
+| Stop (keep data) | `docker compose down` |
+| Full reset | `docker compose down -v` |
+| Logs | `docker compose logs -f web` |
+| Backup | `docker compose exec db pg_dump -U odoo odoo_dev > backups/odoo_dev.dump` |
 
-**All modules in this setup are Community Edition (free).**
+## Roadmap
 
-Key Community apps available to install:
+- [x] Navigation cleanup, terminology, and pipeline redesign
+- [x] Project integration and automation
+- [ ] Install and polish the reporting dashboards
+- [ ] Full rebranding (logo and login page)
 
-| App | Technical name |
-|-----|---------------|
-| CRM | `crm` |
-| Sales | `sale_management` |
-| Purchase | `purchase` |
-| Inventory | `stock` |
-| Accounting / Invoicing | `account` |
-| Project | `project` |
-| Contacts | `contacts` |
-| Discuss (Messaging) | `discuss` |
-| Employees | `hr` |
-| Manufacturing | `mrp` |
-| Helpdesk | `helpdesk` |
-| Website | `website` |
-| eCommerce | `website_sale` |
-| Point of Sale | `point_of_sale` |
+## License
 
-Enterprise-only features (require a paid Odoo subscription and the Enterprise
-repository) include: Studio, Sign, IoT Box, advanced accounting reports,
-full payroll, Social Marketing, and WhatsApp integration.
+[LGPL-3.0](LICENSE), matching the Odoo Community module license declared in each manifest.
